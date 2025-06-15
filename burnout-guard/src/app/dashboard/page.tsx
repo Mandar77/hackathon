@@ -2,9 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useCalendarStore } from '@/store/calendar';
 import { useAiChatStore } from '@/store/ai-chat';
+import { useHealthStore } from '@/store/health';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import HealthConnect from '@/components/HealthConnect';
+import HealthSync from '@/components/HealthSync';
 
 type TabType = 'overview' | 'assistant';
 
@@ -20,6 +23,12 @@ export default function Dashboard() {
     sendMessage, 
     generateProactiveMessage 
   } = useAiChatStore();
+  const { 
+    heartRate, 
+    sleepHours, 
+    stressLevel, 
+    loadData: loadHealthData 
+  } = useHealthStore();
 
   useEffect(() => {
     fetchData();
@@ -33,10 +42,11 @@ export default function Dashboard() {
           breaks: data.breaks,
           afterHoursWork: data.afterHoursWork,
         },
-        date: data.date,
+        userId : data.userId,   
       });
+      loadHealthData(data.userId);
     }
-  }, [data, setUserContext]);
+  }, [data, setUserContext, loadHealthData]);
 
   useEffect(() => {
     if (activeTab === 'assistant' && data && messages.length === 0) {
@@ -47,6 +57,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
       <Header />
+      <HealthSync />
       
       {/* Cute Tab Navigation */}
       <div className="bg-white/80 backdrop-blur-md border-b border-purple-200 sticky top-0 z-10">
@@ -159,47 +170,51 @@ export default function Dashboard() {
                     </p>
                   </Card>
                   
-                  <Card className="p-6 bg-gradient-to-br from-purple-400 to-pink-500 text-white transform hover:scale-105 transition-all duration-300">
+                  <Card className="p-6 bg-gradient-to-br from-pink-400 to-red-500 text-white transform hover:scale-105 transition-all duration-300">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-purple-100">Wellness Score</h3>
-                      <span className="text-3xl">💖</span>
+                      <h3 className="font-semibold text-pink-100">Health Metrics</h3>
+                      <span className="text-3xl">❤️</span>
                     </div>
-                    <p className="text-3xl font-bold mb-2">
-                      {Math.max(20, 100 - Math.floor((data.meetings * 8 + data.afterHoursWork * 15) / 2))}%
-                    </p>
-                    <p className="text-purple-100 text-sm">Keep it up! 🌟</p>
+                    <div className="space-y-2">
+                      <p className="text-sm">Heart Rate: {heartRate} BPM</p>
+                      <p className="text-sm">Sleep: {sleepHours} hours</p>
+                      <p className="text-sm">Stress Level: {stressLevel}/10</p>
+                    </div>
                   </Card>
                 </div>
 
-                <Card className="p-8 bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                    <span className="text-3xl">🎯</span>
-                    Quick Actions
-                  </h3>
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <Button 
-                      onClick={() => setActiveTab('assistant')}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300"
-                    >
-                      <span className="flex items-center gap-3">
-                        <span className="text-xl">💬</span>
-                        <span>Chat with Alex</span>
-                      </span>
-                    </Button>
-                    <Button variant="outline" className="border-2 border-indigo-300 text-indigo-600 hover:bg-indigo-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300">
-                      <span className="flex items-center gap-3">
-                        <span className="text-xl">🧘</span>
-                        <span>Take a Break</span>
-                      </span>
-                    </Button>
-                    <Button variant="outline" className="border-2 border-green-300 text-green-600 hover:bg-green-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300">
-                      <span className="flex items-center gap-3">
-                        <span className="text-xl">📊</span>
-                        <span>View Insights</span>
-                      </span>
-                    </Button>
-                  </div>
-                </Card>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <HealthConnect />
+                  <Card className="p-8 bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                      <span className="text-3xl">🎯</span>
+                      Quick Actions
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <Button 
+                        onClick={() => setActiveTab('assistant')}
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300"
+                      >
+                        <span className="flex items-center gap-3">
+                          <span className="text-xl">💬</span>
+                          <span>Chat with Alex</span>
+                        </span>
+                      </Button>
+                      <Button variant="outline" className="border-2 border-indigo-300 text-indigo-600 hover:bg-indigo-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300">
+                        <span className="flex items-center gap-3">
+                          <span className="text-xl">🧘</span>
+                          <span>Take a Break</span>
+                        </span>
+                      </Button>
+                      <Button variant="outline" className="border-2 border-green-300 text-green-600 hover:bg-green-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300">
+                        <span className="flex items-center gap-3">
+                          <span className="text-xl">📊</span>
+                          <span>View Insights</span>
+                        </span>
+                      </Button>
+                    </div>
+                  </Card>
+                </div>
               </>
             )}
           </div>

@@ -1,47 +1,50 @@
-// src/store/calendar.ts
-import { create } from 'zustand';
+import { create } from 'zustand'
+import { useAuthStore } from '@/store/auth'
 
-// Define types for calendar data
 interface CalendarData {
-  date: string;
-  meetings: number;
-  breaks: number;
-  afterHoursWork: number;
+  userId: string
+  date: string
+  meetings: number
+  breaks: number
+  afterHoursWork: number
 }
 
-type CalendarState = {
-  data: CalendarData | null;
-  loading: boolean;
-  error: string | null;
-  fetchData: () => Promise<void>;
-};
+interface CalendarState {
+  data: CalendarData | null
+  loading: boolean
+  error: string | null
+  fetchData: () => Promise<void>
+}
 
-// Mock API fetch function (can be replaced with real API calls)
-const fetchCalendarData = async (): Promise<CalendarData> => {
+const fetchCalendarData = async (userId: string): Promise<CalendarData> => {
   // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-
-  // Mock data
+  await new Promise(resolve => setTimeout(resolve, 800))
+  
+  // Return mock data with the provided userId
   return {
+    userId,
     date: new Date().toISOString(),
     meetings: Math.floor(Math.random() * 10),
     breaks: Math.floor(Math.random() * 5),
     afterHoursWork: Math.floor(Math.random() * 3)
-  };
-};
+  }
+}
 
-// Zustand store
 export const useCalendarStore = create<CalendarState>((set) => ({
   data: null,
   loading: false,
   error: null,
   fetchData: async () => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null })
     try {
-      const data = await fetchCalendarData();
-      set({ data, loading: false });
+      const userId = useAuthStore.getState().user?.id || ''
+      const data = await fetchCalendarData(userId)
+      set({ data, loading: false })
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : String(error), loading: false });
+      set({ 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        loading: false 
+      })
     }
   }
-}));
+}))
