@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { getChatCompletion, generateProactiveMessage as generateProactiveMessageAPI } from '@/lib/gmi'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -26,15 +27,13 @@ interface AiChatState {
   messages: ChatMessage[]
   loading: boolean
   error: string | null
-  retryCount: number
-  lastRequestData: { userId: string } | null
   inputValue: string
   isChatMode: boolean
+  retryCount: number
+  lastRequestData: { type: 'message' | 'proactive'; data: any } | null
   
   // Actions
   setUserContext: (context: UserContext) => void
-  setError: (error: string | null) => void
-  setRetryCount: (count: number) => void
   setInputValue: (value: string) => void
   setIsChatMode: (mode: boolean) => void
   addMessage: (message: ChatMessage) => void
@@ -49,14 +48,12 @@ export const useAiChatStore = create<AiChatState>((set, get) => ({
   messages: [],
   loading: false,
   error: null,
-  retryCount: 0,
-  lastRequestData: null,
   inputValue: '',
   isChatMode: false,
+  retryCount: 0,
+  lastRequestData: null,
 
   setUserContext: (context) => set({ userContext: context }),
-  setError: (error) => set({ error }),
-  setRetryCount: (count) => set({ retryCount: count }),
   setInputValue: (value) => set({ inputValue: value }),
   setIsChatMode: (mode) => set({ isChatMode: mode }),
 
@@ -67,7 +64,12 @@ export const useAiChatStore = create<AiChatState>((set, get) => ({
   sendMessage: async (message) => {
     if (!message.trim()) return
     
-    set({ loading: true, error: null, inputValue: '' })
+    set({ 
+      loading: true, 
+      error: null,
+      lastRequestData: { type: 'message', data: message }
+    })
+    
     try {
       // Add user message
       get().addMessage({
@@ -76,8 +78,11 @@ export const useAiChatStore = create<AiChatState>((set, get) => ({
         timestamp: new Date()
       })
 
-      // Get AI response (implement your API call here)
-      const response = "I'm here to help! Here's a personalized suggestion..." // Mock response
+      // Get AI response
+      const response = await getChatCompletion(
+        [{ role: 'user', content: message.trim() }],
+        get().userContext
+      )
 
       // Add assistant message
       get().addMessage({
@@ -85,28 +90,45 @@ export const useAiChatStore = create<AiChatState>((set, get) => ({
         content: response,
         timestamp: new Date()
       })
+      
+      set({ retryCount: 0 })
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      set({ error: errorMessage })
+      console.error('Message Error:', error)
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to send message',
+        retryCount: get().retryCount + 1
+      })
     } finally {
       set({ loading: false })
     }
   },
 
   generateProactiveMessage: async (userId) => {
-    set({ loading: true, error: null })
+    set({ 
+      loading: true, 
+      error: null,
+      lastRequestData: { type: 'proactive', data: { userId } }
+    })
+    
     try {
-      // Generate proactive message (implement API call)
-      const message = "I noticed you've been working hard. Let's schedule a break!" // Mock
+      const response = await generateProactiveMessageAPI({
+        ...get().userContext,
+        userId
+      })
       
       get().addMessage({
-        role: 'assistant',
-        content: message,
+        role: 'assistant', 
+        content: response,
         timestamp: new Date()
       })
+      
+      set({ retryCount: 0 })
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      set({ error: errorMessage })
+      console.error('Proactive Error:', error)
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to generate insights',
+        retryCount: get().retryCount + 1
+      })
     } finally {
       set({ loading: false })
     }
@@ -114,10 +136,23 @@ export const useAiChatStore = create<AiChatState>((set, get) => ({
 
   retryFailedRequest: async () => {
     const { lastRequestData } = get()
-    if (lastRequestData?.userId) {
-      await get().generateProactiveMessage(lastRequestData.userId)
+    if (!lastRequestData) return
+
+    try {
+      if (lastRequestData.type === 'message') {
+        await get().sendMessage(lastRequestData.data)
+      } else {
+        await get().generateProactiveMessage(lastRequestData.data.userId)
+      }
+    } catch (error) {
+      console.error('Retry Failed:', error)
     }
   },
 
-  clearMessages: () => set({ messages: [], error: null })
+  clearMessages: () => set({ 
+    messages: [], 
+    error: null,
+    lastRequestData: null,
+    retryCount: 0
+  })
 }))

@@ -33,12 +33,10 @@ export default function Dashboard() {
     loadData: loadHealthData 
   } = useHealthStore();
 
-  // Fetch initial data
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Update context when data changes
   useEffect(() => {
     if (data) {
       setUserContext({
@@ -53,7 +51,6 @@ export default function Dashboard() {
     }
   }, [data, setUserContext, loadHealthData]);
 
-  // Generate proactive message when switching to assistant tab
   useEffect(() => {
     if (activeTab === 'assistant' && data?.userId && messages.length === 0) {
       generateProactiveMessage(data.userId);
@@ -208,7 +205,18 @@ export default function Dashboard() {
                           <span>Chat with Alex</span>
                         </span>
                       </Button>
-                      {/* Other buttons... */}
+                      <Button variant="outline" className="border-2 border-indigo-300 text-indigo-600 hover:bg-indigo-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300">
+                        <span className="flex items-center gap-3">
+                          <span className="text-xl">🧘</span>
+                          <span>Take a Break</span>
+                        </span>
+                      </Button>
+                      <Button variant="outline" className="border-2 border-green-300 text-green-600 hover:bg-green-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300">
+                        <span className="flex items-center gap-3">
+                          <span className="text-xl">📊</span>
+                          <span>View Insights</span>
+                        </span>
+                      </Button>
                     </div>
                   </Card>
                 </div>
@@ -252,7 +260,10 @@ export default function Dashboard() {
                   </h3>
                   {messages.length > 0 && (
                     <Button
-                      onClick={() => useAiChatStore.getState().clearMessages()}
+                      onClick={() => {
+                        useAiChatStore.getState().clearMessages()
+                        useAiChatStore.getState().setIsChatMode(false)
+                      }}
                       variant="outline"
                       size="sm"
                       className="text-gray-500 hover:text-gray-700"
@@ -307,7 +318,7 @@ export default function Dashboard() {
                     />
                   ))}
                 </div>
-
+                
                 {isChatMode ? (
                   <ChatInput disabled={chatLoading} />
                 ) : (
