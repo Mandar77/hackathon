@@ -95,6 +95,7 @@ async function generateProactiveMessage(userId: string) {
   
   useAiChatStore.getState().addMessage({
     role: 'assistant',
-    content: message
+    content: message,
+    timestamp: new Date()
   })
 }
