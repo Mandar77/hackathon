@@ -68,42 +68,62 @@ export class EnhancedDatabaseService {
     };
   }
 
-async getUserPreferences(userId: string): Promise<UserPreferences | null> {
-  try {
-    const { data, error } = await supabase
-      .from('user_preferences')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    // Handle "no rows found" as a normal case (not an error)
-    if (error && error.code === 'PGRST116') {
-      return null; // No preferences found (new user)
+  async getUserPreferences(userId: string): Promise<UserPreferences | null> {
+    try {
+      console.log('Getting user preferences for:', userId);
+      
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle(); // Use maybeSingle() instead of single()
+  
+      if (error) {
+        console.error('Error getting user preferences:', error);
+        throw this.handleError(error, 'get user preferences');
+      }
+      
+      console.log('User preferences result:', data);
+      return data; // Will be null if no rows found
+    } catch (error) {
+      console.error('Error getting user preferences:', error);
+      return null; // Return null on error to prevent blocking onboarding
     }
-
-    if (error) throw this.handleError(error, 'get user preferences');
-    return data;
-  } catch (error) {
-    console.error('Error getting user preferences:', error);
-    throw error; // Re-throw so checkUserOnboardingStatus can handle it
   }
-}
+
+// Replace your createInitialUserPreferences method with this:
 
 async createInitialUserPreferences(userId: string): Promise<UserPreferences | null> {
   try {
+    // Use UPSERT to handle both create and update cases automatically
     const { data, error } = await supabase
       .from('user_preferences')
-      .insert({
+      .upsert({
         user_id: userId,
+        
+        // Required fields from your schema
+        job_role: 'Not specified', // Required field
+        communication_style: 'supportive', // Required field - default to supportive
+        intervention_frequency: 'medium', // Required field - default to medium
+        focus_areas: [], // Required field - empty array
+        
+        // Onboarding tracking
         onboarding_step: 1,
         onboarding_complete: false,
+        
+        // Timestamps
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      })
+      }, { onConflict: 'user_id' })
       .select()
       .single();
 
-    if (error) throw this.handleError(error, 'create initial user preferences');
+    if (error) {
+      console.error('Create initial preferences error:', error);
+      throw this.handleError(error, 'create initial user preferences');
+    }
+    
+    console.log('✅ Initial preferences created/updated successfully');
     return data;
   } catch (error) {
     console.error('Error creating initial user preferences:', error);
@@ -137,21 +157,28 @@ async checkUserOnboardingStatus(userId: string): Promise<{
   }
 }
 
-  async getUserGoals(userId: string): Promise<UserGoals | null> {
-    try {
-      const { data, error } = await supabase
-        .from('user_goals')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+async getUserGoals(userId: string): Promise<UserGoals | null> {
+  try {
+    console.log('Getting user goals for:', userId);
+    
+    const { data, error } = await supabase
+      .from('user_goals')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle(); // Use maybeSingle() instead of single()
 
-      if (error) throw this.handleError(error, 'get user goals');
-      return data;
-    } catch (error) {
+    if (error) {
       console.error('Error getting user goals:', error);
-      return null;
+      throw this.handleError(error, 'get user goals');
     }
+    
+    console.log('User goals result:', data);
+    return data; // Will be null if no rows found (normal during onboarding)
+  } catch (error) {
+    console.error('Error getting user goals:', error);
+    return null; // Return null on error to prevent blocking onboarding
   }
+}
 
   async getDailyWellnessScores(userId: string, startDate?: string): Promise<DailyWellnessScore[]> {
     try {
@@ -272,20 +299,25 @@ async checkUserOnboardingStatus(userId: string): Promise<{
     step1Data: Partial<UserPreferences>
   ): Promise<DatabaseResult<UserPreferences>> {
     try {
+      // Get existing preferences (might be null for new users)
+      const existingPreferences = await this.getUserPreferences(userId);
+      
       const preferences = {
-        ...step1Data,
+        ...existingPreferences, // Preserve any existing data
+        ...step1Data,           // Add new step 1 data
         user_id: userId,
-        onboarding_step: Math.max(step1Data.onboarding_step || 0, 1)
+        onboarding_step: Math.max(step1Data.onboarding_step || 0, 1),
+        updated_at: new Date().toISOString()
       };
-
+  
       const { data, error } = await supabase
         .from('user_preferences')
         .upsert(preferences, { onConflict: 'user_id' })
         .select()
         .single();
-
+  
       if (error) throw this.handleError(error, 'save onboarding step 1');
-
+  
       return this.wrapResult(data);
     } catch (error) {
       return this.wrapError(error);
@@ -297,20 +329,25 @@ async checkUserOnboardingStatus(userId: string): Promise<{
     step2Data: Partial<UserPreferences>
   ): Promise<DatabaseResult<UserPreferences>> {
     try {
+      // First, get existing preferences to preserve step 1 data
+      const existingPreferences = await this.getUserPreferences(userId);
+      
       const preferences = {
-        ...step2Data,
+        ...existingPreferences, // Preserve existing data (including job_role from step 1)
+        ...step2Data,           // Add new step 2 data
         user_id: userId,
-        onboarding_step: Math.max(step2Data.onboarding_step || 0, 2)
+        onboarding_step: Math.max(step2Data.onboarding_step || 0, 2),
+        updated_at: new Date().toISOString()
       };
-
+  
       const { data, error } = await supabase
         .from('user_preferences')
         .upsert(preferences, { onConflict: 'user_id' })
         .select()
         .single();
-
+  
       if (error) throw this.handleError(error, 'save onboarding step 2');
-
+  
       return this.wrapResult(data);
     } catch (error) {
       return this.wrapError(error);

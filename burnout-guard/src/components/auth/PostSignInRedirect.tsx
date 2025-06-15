@@ -31,12 +31,12 @@ export default function PostSignInRedirect() {
           // Brand new user - create initial preferences
           setStatus('Creating your profile...');
           await databaseService.createInitialUserPreferences(user.id);
-          router.push('/onboarding/step-1');
+          router.push('/onboarding/step1'); 
         } else if (!onboardingStatus.onboardingComplete) {
           // User has started onboarding but not finished
           setStatus('Resuming your setup...');
           const step = onboardingStatus.onboardingStep || 1;
-          router.push(`/onboarding/step-${step}`);
+          router.push(`/onboarding/step${step}`); 
         } else {
           // Returning user with complete onboarding
           setStatus('Welcome back!');
@@ -46,7 +46,7 @@ export default function PostSignInRedirect() {
         console.error('Error during post-signin redirect:', error);
         setStatus('Setting up your account...');
         // Default to onboarding on error
-        router.push('/onboarding/step1');
+        router.push('/onboarding/step1'); // This one was already correct
       } finally {
         setChecking(false);
       }

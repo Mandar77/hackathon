@@ -59,17 +59,33 @@ export function useOnboarding() {
     [user?.id]
   );
 
+  // Sync currentStep with onboardingData
+  useEffect(() => {
+    if (onboardingData?.currentStep) {
+      setCurrentStep(onboardingData.currentStep as 1 | 2 | 3);
+    }
+  }, [onboardingData?.currentStep]);
+
   const saveStep1 = useCallback(async (step1Data: Partial<UserPreferences>) => {
     if (!user?.id) throw new Error('User not authenticated');
     
+    console.log('🟡 saveStep1 called with data:', step1Data);
     setIsSubmitting(true);
+    
     try {
+      console.log('🟡 Calling database saveOnboardingStep1...');
       const result = await databaseService.saveOnboardingStep1(user.id, step1Data);
+      console.log('🟡 Database result:', result);
+      
       if (!result.success) throw result.error;
       
       setFormData(prev => ({ ...prev, ...step1Data }));
-      setCurrentStep(2);
+      // REMOVE THIS LINE: setCurrentStep(2);
+      
       return result.data;
+    } catch (error) {
+      console.error('❌ Error in saveStep1:', error);
+      throw error;
     } finally {
       setIsSubmitting(false);
     }

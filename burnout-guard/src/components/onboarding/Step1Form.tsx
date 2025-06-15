@@ -59,10 +59,10 @@ export default function Step1Form({ initialData, onSubmit, onNext, isLoading }: 
 
     try {
       await onSubmit(formData);
-      onNext(); // Move to next step on success
+      // Navigation is now handled in the page component
+      
     } catch (error) {
       console.error('Step 1 submission error:', error);
-      // Error handling is done in the parent component
     }
   };
 

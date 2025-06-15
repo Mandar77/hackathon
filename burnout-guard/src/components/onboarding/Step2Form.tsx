@@ -76,7 +76,7 @@ export default function Step2Form({ initialData, onSubmit, onNext, onBack, isLoa
 
     try {
       await onSubmit(formData);
-      onNext(); // Move to next step on success
+      //onNext(); // Move to next step on success
     } catch (error) {
       console.error('Step 2 submission error:', error);
     }

@@ -5,6 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Step1Form from '@/components/onboarding/Step1Form';
+import { AuthHeader } from '@/components/layout/AuthHeader';
+import { Card } from '@/components/ui/card';
 
 export default function OnboardingStep1Page() {
   const { user, loading: authLoading } = useAuth();
@@ -35,9 +37,9 @@ export default function OnboardingStep1Page() {
   // Loading state
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -47,12 +49,12 @@ export default function OnboardingStep1Page() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error loading onboarding data</p>
           <button 
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
           >
             Retry
           </button>
@@ -66,20 +68,32 @@ export default function OnboardingStep1Page() {
   };
 
   const handleSubmit = async (data: any) => {
-    await saveStep1(data);
-    // saveStep1 automatically moves to step 2, but we need to navigate
-    handleNext();
+    console.log('🟡 Step 1 form submitted with data:', data);
+  
+    try {
+      console.log('🟡 Calling saveStep1...');
+      const result = await saveStep1(data);
+      console.log('🟡 SaveStep1 result:', result);
+      
+      console.log('🟡 Navigating to step 2...');
+      router.push('/onboarding/step2');
+      
+    } catch (error) {
+      console.error('❌ Step 1 submission error:', error);
+      throw error;
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
+      <AuthHeader />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
             Welcome to Burnout Guard
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-lg">
             Let's set up your personalized wellness experience
           </p>
         </div>
@@ -92,20 +106,20 @@ export default function OnboardingStep1Page() {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                     step === 1
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-purple-600 text-white'
                       : 'bg-gray-200 text-gray-600'
                   }`}
                 >
                   {step}
                 </div>
                 {step < 3 && (
-                  <div className="w-12 h-1 mx-2 bg-gray-200" />
+                  <div className={`w-12 h-1 mx-2 ${step < 1 ? 'bg-purple-600' : 'bg-gray-200'}`} />
                 )}
               </div>
             ))}
           </div>
           <div className="flex justify-between text-xs text-gray-500 mt-2">
-            <span className="font-medium text-blue-600">Work Context</span>
+            <span className="font-medium text-purple-600">Work Context</span>
             <span>AI Preferences</span>
             <span>Goals</span>
           </div>
@@ -113,14 +127,14 @@ export default function OnboardingStep1Page() {
 
         {/* Form Content */}
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <Card className="bg-gradient-to-br from-white to-indigo-50 border-indigo-200 shadow-xl p-8">
             <Step1Form
               initialData={formData}
               onSubmit={handleSubmit}
               onNext={handleNext}
               isLoading={isSubmitting}
             />
-          </div>
+          </Card>
         </div>
 
         {/* Debug Info (remove in production) */}

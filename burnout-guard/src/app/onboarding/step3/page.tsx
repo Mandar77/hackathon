@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Step3Form from '@/components/onboarding/Step3Form';
+import { Card } from '@/components/ui/card';
 
 export default function OnboardingStep3Page() {
   const { user, loading: authLoading } = useAuth();
@@ -33,15 +34,7 @@ export default function OnboardingStep3Page() {
   }, [onboardingData, router]);
 
   // Redirect to appropriate step if user hasn't completed previous steps
-  useEffect(() => {
-    if (!loading && onboardingData) {
-      if (onboardingData.currentStep < 2) {
-        router.push('/onboarding/step-1');
-      } else if (onboardingData.currentStep < 3) {
-        router.push('/onboarding/step-2');
-      }
-    }
-  }, [onboardingData, loading, router]);
+
 
   // Loading state
   if (authLoading || loading) {
@@ -77,7 +70,7 @@ export default function OnboardingStep3Page() {
   };
 
   const handleBack = () => {
-    router.push('/onboarding/step-2');
+    router.push('/onboarding/step2');
   };
 
   const handleSubmit = async (data: any) => {
@@ -87,14 +80,14 @@ export default function OnboardingStep3Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome to Burnout Guard
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+            Welcome to Burnout Guard! 🌟
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-lg">
             Let's set up your personalized wellness experience
           </p>
         </div>
@@ -106,15 +99,15 @@ export default function OnboardingStep3Page() {
               <div key={step} className="flex items-center">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step <= 3
-                      ? 'bg-blue-600 text-white'
+                    step === 3
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
                       : 'bg-gray-200 text-gray-600'
                   }`}
                 >
                   {step}
                 </div>
                 {step < 3 && (
-                  <div className="w-12 h-1 mx-2 bg-blue-600" />
+                  <div className={`w-12 h-1 mx-2 ${step < 3 ? 'bg-gradient-to-r from-purple-600 to-pink-600' : 'bg-gray-200'}`} />
                 )}
               </div>
             ))}
@@ -122,13 +115,13 @@ export default function OnboardingStep3Page() {
           <div className="flex justify-between text-xs text-gray-500 mt-2">
             <span>Work Context</span>
             <span>AI Preferences</span>
-            <span className="font-medium text-blue-600">Goals</span>
+            <span className="font-medium text-purple-600">Goals</span>
           </div>
         </div>
 
         {/* Form Content */}
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <Card className="bg-gradient-to-br from-white to-indigo-50 border-indigo-200 shadow-xl p-8">
             <Step3Form
               initialData={formData}
               onSubmit={handleSubmit}
@@ -136,7 +129,7 @@ export default function OnboardingStep3Page() {
               onBack={handleBack}
               isLoading={isSubmitting}
             />
-          </div>
+          </Card>
         </div>
 
         {/* Debug Info (remove in production) */}
