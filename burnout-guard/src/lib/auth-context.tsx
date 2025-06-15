@@ -35,8 +35,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
+    const { data, error } = await supabase.auth.signInWithPassword({ 
+      email, 
+      password 
+    })
+    
+    if (error) {
+      // Handle email not confirmed case
+      if (error.message === 'Email not confirmed') {
+        // Try to resend confirmation email
+        const { error: resendError } = await supabase.auth.resend({
+          type: 'signup',
+          email,
+        })
+        
+        if (resendError) {
+          console.error('Resend error:', resendError) // Debug log
+          throw new Error(`Failed to resend confirmation: ${resendError.message}`)
+        }
+        
+        throw new Error('Please check your email for the confirmation link. A new confirmation email has been sent.')
+      }
+      
+      throw error
+    }
   }
 
   const signUp = async (email: string, password: string) => {

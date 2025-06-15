@@ -1,4 +1,4 @@
-export interface User {
+export interface UserProfile {
   id: string
   name: string
   email: string
@@ -17,4 +17,11 @@ export interface BurnoutScore {
   workload: number
   boundaries: number
   recovery: number
+}
+
+export interface AIInteraction {
+  id: string;
+  userId: string;
+  message: string;
+  timestamp: string; // or Date
 }
