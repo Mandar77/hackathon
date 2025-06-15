@@ -51,21 +51,99 @@ export interface UserPreferences {
     updated_at?: string
   }
   
-  export interface CalendarData {
+  // Update your CalendarData interface in /src/types/onboarding.ts
+
+export interface CalendarData {
+  id?: string
+  user_id: string
+  date: string  // DATE field - daily aggregation
+  
+  // Meeting analysis
+  total_meeting_minutes?: number
+  meeting_count?: number
+  back_to_back_meetings?: number
+  longest_meeting_minutes?: number
+  
+  // Work timing
+  first_event_time?: string  // TIME field
+  last_event_time?: string   // TIME field  
+  work_duration_minutes?: number
+  after_hours_minutes?: number
+  
+  // Focus time analysis
+  focus_blocks_count?: number
+  longest_focus_block_minutes?: number
+  fragmented_time_minutes?: number
+  
+  // Meeting types
+  one_on_one_count?: number
+  team_meeting_count?: number
+  external_meeting_count?: number
+  
+  // Raw calendar events for this day
+  raw_events?: any[]  // JSON array of Google Calendar events
+  
+  created_at?: string
+}
+
+export interface CalendarData {
     id?: string
     user_id: string
-    event_id: string
-    title: string
-    start_time: string
-    end_time: string
-    duration_minutes?: number
-    event_type?: 'meeting' | 'focus' | 'break' | 'personal' | 'other'
-    meeting_size?: number
-    is_recurring?: boolean
-    calendar_source?: string
-    raw_data?: Record<string, any>
+    date: string  // DATE field - daily aggregation
+    
+    // Meeting analysis
+    total_meeting_minutes?: number
+    meeting_count?: number
+    back_to_back_meetings?: number
+    longest_meeting_minutes?: number
+    
+    // Work timing
+    first_event_time?: string  // TIME field
+    last_event_time?: string   // TIME field  
+    work_duration_minutes?: number
+    after_hours_minutes?: number
+    
+    // Focus time analysis
+    focus_blocks_count?: number
+    longest_focus_block_minutes?: number
+    fragmented_time_minutes?: number
+    
+    // Meeting types
+    one_on_one_count?: number
+    team_meeting_count?: number
+    external_meeting_count?: number
+    
+    // Raw calendar events for this day
+    raw_events?: any[]  // JSON array of Google Calendar events
+    
     created_at?: string
-    updated_at?: string
+  }
+  
+  // Individual calendar event (for processing, not stored directly)
+  export interface CalendarEvent {
+    id: string
+    summary: string
+    start: {
+      dateTime?: string
+      date?: string
+      timeZone?: string
+    }
+    end: {
+      dateTime?: string  
+      date?: string
+      timeZone?: string
+    }
+    attendees?: Array<{
+      email: string
+      responseStatus: string
+    }>
+    organizer?: {
+      email: string
+      self?: boolean
+    }
+    recurring?: boolean
+    location?: string
+    description?: string
   }
   
   export interface DailyWellnessScore {

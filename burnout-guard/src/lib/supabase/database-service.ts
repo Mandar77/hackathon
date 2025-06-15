@@ -1075,7 +1075,7 @@ async calculateWellnessScore(userId: string, date: string): Promise<number | nul
 
     // Calendar data scoring (25% weight)
     if (calendarData.length > 0) {
-      const totalMeetingTime = calendarData.reduce((sum, event) => sum + (event.duration_minutes || 0), 0);
+      const totalMeetingTime = calendarData.reduce((sum, event) => sum + (event.work_duration_minutes || 0), 0);
       
       // Penalize excessive meeting time
       if (totalMeetingTime > 480) { // More than 8 hours

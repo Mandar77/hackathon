@@ -6,6 +6,7 @@ import { useHealthStore } from '@/store/health';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import ConnectCalendar from '@/components/ConnectCalendar';
 import HealthConnect from '@/components/HealthConnect';
 import HealthSync from '@/components/HealthSync';
 import ChatInput from '@/components/ChatInput';
@@ -139,7 +140,7 @@ export default function Dashboard() {
             {data && (
               <>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                  <Card className="p-6 bg-gradient-to-br from-blue-400 to-blue-600 text-white transform hover:scale-105 transition-all duration-300">
+                <Card className="p-6 bg-gradient-to-br from-blue-400 to-blue-600 text-white transform hover:scale-105 transition-all duration-300">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold text-blue-100">Today's Meetings</h3>
                       <span className="text-3xl">📅</span>
@@ -183,10 +184,12 @@ export default function Dashboard() {
                       <p className="text-sm">Stress Level: {stressLevel}/10</p>
                     </div>
                   </Card>
+                  {/* ... existing health metric cards ... */}
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">
                   <HealthConnect />
+                  <ConnectCalendar />
                   <Card className="p-8 bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
                     <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
                       <span className="text-3xl">🎯</span>
