@@ -31,16 +31,16 @@ export default function OnboardingMainPage() {
     
     switch (currentStep) {
       case 1:
-        router.push('/onboarding/step-1');
+        router.push('/onboarding/step1');
         break;
       case 2:
-        router.push('/onboarding/step-2');
+        router.push('/onboarding/step2');
         break;
       case 3:
-        router.push('/onboarding/step-3');
+        router.push('/onboarding/step3');
         break;
       default:
-        router.push('/onboarding/step-1');
+        router.push('/onboarding/step1');
     }
   }, [user, authLoading, onboardingData, loading, router]);
 

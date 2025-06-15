@@ -35,7 +35,7 @@ export default function OnboardingStep2Page() {
   // Redirect to step 1 if user hasn't completed it yet
   useEffect(() => {
     if (!loading && onboardingData && onboardingData.currentStep < 2) {
-      router.push('/onboarding/step-1');
+      router.push('/onboarding/step1');
     }
   }, [onboardingData, loading, router]);
 
@@ -69,11 +69,11 @@ export default function OnboardingStep2Page() {
   }
 
   const handleNext = () => {
-    router.push('/onboarding/step-3');
+    router.push('/onboarding/step3');
   };
 
   const handleBack = () => {
-    router.push('/onboarding/step-1');
+    router.push('/onboarding/step1');
   };
 
   const handleSubmit = async (data: any) => {

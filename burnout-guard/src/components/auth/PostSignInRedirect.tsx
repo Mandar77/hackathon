@@ -46,7 +46,7 @@ export default function PostSignInRedirect() {
         console.error('Error during post-signin redirect:', error);
         setStatus('Setting up your account...');
         // Default to onboarding on error
-        router.push('/onboarding/step-1');
+        router.push('/onboarding/step1');
       } finally {
         setChecking(false);
       }

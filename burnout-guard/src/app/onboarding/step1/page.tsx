@@ -62,7 +62,7 @@ export default function OnboardingStep1Page() {
   }
 
   const handleNext = () => {
-    router.push('/onboarding/step-2');
+    router.push('/onboarding/step2');
   };
 
   const handleSubmit = async (data: any) => {
