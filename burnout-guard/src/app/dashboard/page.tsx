@@ -15,12 +15,10 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const { data, loading: dataLoading, error: dataError, fetchData } = useCalendarStore();
   const { 
-    userContext, 
     messages, 
     loading: chatLoading, 
     error: chatError, 
     setUserContext, 
-    sendMessage, 
     generateProactiveMessage 
   } = useAiChatStore();
   const { 
@@ -42,15 +40,15 @@ export default function Dashboard() {
           breaks: data.breaks,
           afterHoursWork: data.afterHoursWork,
         },
-        userId : data.userId,   
+        userId: data.userId,   
       });
       loadHealthData(data.userId);
     }
   }, [data, setUserContext, loadHealthData]);
 
   useEffect(() => {
-    if (activeTab === 'assistant' && data && messages.length === 0) {
-      generateProactiveMessage();
+    if (activeTab === 'assistant' && data?.userId && messages.length === 0) {
+      generateProactiveMessage(data.userId);
     }
   }, [activeTab, data, messages.length, generateProactiveMessage]);
 
@@ -59,7 +57,7 @@ export default function Dashboard() {
       <Header />
       <HealthSync />
       
-      {/* Cute Tab Navigation */}
+      {/* Tab Navigation */}
       <div className="bg-white/80 backdrop-blur-md border-b border-purple-200 sticky top-0 z-10">
         <div className="container mx-auto px-6">
           <nav className="flex space-x-2" aria-label="Tabs">
@@ -324,7 +322,7 @@ export default function Dashboard() {
                 
                 <div className="flex gap-3">
                   <Button
-                    onClick={() => generateProactiveMessage()}
+                    onClick={() => data?.userId && generateProactiveMessage(data.userId)}
                     disabled={chatLoading}
                     className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium py-3 px-6 rounded-2xl transform hover:scale-105 transition-all duration-300"
                   >
