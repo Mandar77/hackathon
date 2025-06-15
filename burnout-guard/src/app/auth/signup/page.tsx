@@ -32,8 +32,8 @@ export default function SignUp() {
                 return
             }
             await signUp(email, password)
-            // After successful signup, redirect to dashboard
-            router.push('/dashboard')
+            // After successful signup, redirect to onboarding page
+            router.push('/auth/verify-email')
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred')
         } finally {

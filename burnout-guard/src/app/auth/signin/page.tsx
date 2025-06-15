@@ -28,7 +28,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       console.log('Sign in successful') // Debug log
       
       // Use Next.js router instead of hard navigation
-      router.push('/dashboard')
+      router.push('/auth/callback')
       
     } catch (err) {
       console.error('Sign in error:', err) // Debug log
