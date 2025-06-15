@@ -6,6 +6,7 @@ import { useHealthStore } from '@/store/health';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import ConnectCalendar from '@/components/ConnectCalendar';
 import HealthConnect from '@/components/HealthConnect';
 import HealthSync from '@/components/HealthSync';
 import ChatInput from '@/components/ChatInput';
@@ -142,12 +143,56 @@ export default function Dashboard() {
             {data && (
               <>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                  {/* Health Metrics Cards (same as before) */}
+                <Card className="p-6 bg-gradient-to-br from-blue-400 to-blue-600 text-white transform hover:scale-105 transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-blue-100">Today's Meetings</h3>
+                      <span className="text-3xl">📅</span>
+                    </div>
+                    <p className="text-3xl font-bold mb-2">{data.meetings}</p>
+                    <p className="text-blue-100 text-sm">
+                      {data.meetings > 6 ? '😰 Quite busy today!' : '😊 Looking good!'}
+                    </p>
+                  </Card>
+                  
+                  <Card className="p-6 bg-gradient-to-br from-green-400 to-green-600 text-white transform hover:scale-105 transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-green-100">Break Time</h3>
+                      <span className="text-3xl">☕</span>
+                    </div>
+                    <p className="text-3xl font-bold mb-2">{data.breaks} min</p>
+                    <p className="text-green-100 text-sm">
+                      {data.breaks < 30 ? '⏰ Time for more breaks!' : '🎉 Great balance!'}
+                    </p>
+                  </Card>
+                  
+                  <Card className="p-6 bg-gradient-to-br from-orange-400 to-red-500 text-white transform hover:scale-105 transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-orange-100">Overtime Hours</h3>
+                      <span className="text-3xl">🌙</span>
+                    </div>
+                    <p className="text-3xl font-bold mb-2">{data.afterHoursWork}h</p>
+                    <p className="text-orange-100 text-sm">
+                      {data.afterHoursWork > 2 ? '😴 Time to rest!' : '✨ Healthy boundaries!'}
+                    </p>
+                  </Card>
+                  
+                  <Card className="p-6 bg-gradient-to-br from-pink-400 to-red-500 text-white transform hover:scale-105 transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-pink-100">Health Metrics</h3>
+                      <span className="text-3xl">❤️</span>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm">Heart Rate: {heartRate} BPM</p>
+                      <p className="text-sm">Sleep: {sleepHours} hours</p>
+                      <p className="text-sm">Stress Level: {stressLevel}/10</p>
+                    </div>
+                  </Card>
                   {/* ... existing health metric cards ... */}
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">
                   <HealthConnect />
+                  <ConnectCalendar />
                   <Card className="p-8 bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
                     <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
                       <span className="text-3xl">🎯</span>
