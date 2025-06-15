@@ -32,12 +32,10 @@ export default function Dashboard() {
     loadData: loadHealthData 
   } = useHealthStore();
 
-  // Fetch initial data
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Update context when data changes
   useEffect(() => {
     if (data) {
       setUserContext({
@@ -52,7 +50,6 @@ export default function Dashboard() {
     }
   }, [data, setUserContext, loadHealthData]);
 
-  // Generate proactive message when switching to assistant tab
   useEffect(() => {
     if (activeTab === 'assistant' && data?.userId && messages.length === 0) {
       generateProactiveMessage(data.userId);
@@ -142,8 +139,50 @@ export default function Dashboard() {
             {data && (
               <>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                  {/* Health Metrics Cards (same as before) */}
-                  {/* ... existing health metric cards ... */}
+                  <Card className="p-6 bg-gradient-to-br from-blue-400 to-blue-600 text-white transform hover:scale-105 transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-blue-100">Today's Meetings</h3>
+                      <span className="text-3xl">📅</span>
+                    </div>
+                    <p className="text-3xl font-bold mb-2">{data.meetings}</p>
+                    <p className="text-blue-100 text-sm">
+                      {data.meetings > 6 ? '😰 Quite busy today!' : '😊 Looking good!'}
+                    </p>
+                  </Card>
+                  
+                  <Card className="p-6 bg-gradient-to-br from-green-400 to-green-600 text-white transform hover:scale-105 transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-green-100">Break Time</h3>
+                      <span className="text-3xl">☕</span>
+                    </div>
+                    <p className="text-3xl font-bold mb-2">{data.breaks} min</p>
+                    <p className="text-green-100 text-sm">
+                      {data.breaks < 30 ? '⏰ Time for more breaks!' : '🎉 Great balance!'}
+                    </p>
+                  </Card>
+                  
+                  <Card className="p-6 bg-gradient-to-br from-orange-400 to-red-500 text-white transform hover:scale-105 transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-orange-100">Overtime Hours</h3>
+                      <span className="text-3xl">🌙</span>
+                    </div>
+                    <p className="text-3xl font-bold mb-2">{data.afterHoursWork}h</p>
+                    <p className="text-orange-100 text-sm">
+                      {data.afterHoursWork > 2 ? '😴 Time to rest!' : '✨ Healthy boundaries!'}
+                    </p>
+                  </Card>
+                  
+                  <Card className="p-6 bg-gradient-to-br from-pink-400 to-red-500 text-white transform hover:scale-105 transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-pink-100">Health Metrics</h3>
+                      <span className="text-3xl">❤️</span>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm">Heart Rate: {heartRate} BPM</p>
+                      <p className="text-sm">Sleep: {sleepHours} hours</p>
+                      <p className="text-sm">Stress Level: {stressLevel}/10</p>
+                    </div>
+                  </Card>
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">
@@ -163,7 +202,18 @@ export default function Dashboard() {
                           <span>Chat with Alex</span>
                         </span>
                       </Button>
-                      {/* Other buttons... */}
+                      <Button variant="outline" className="border-2 border-indigo-300 text-indigo-600 hover:bg-indigo-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300">
+                        <span className="flex items-center gap-3">
+                          <span className="text-xl">🧘</span>
+                          <span>Take a Break</span>
+                        </span>
+                      </Button>
+                      <Button variant="outline" className="border-2 border-green-300 text-green-600 hover:bg-green-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300">
+                        <span className="flex items-center gap-3">
+                          <span className="text-xl">📊</span>
+                          <span>View Insights</span>
+                        </span>
+                      </Button>
                     </div>
                   </Card>
                 </div>
@@ -207,7 +257,10 @@ export default function Dashboard() {
                   </h3>
                   {messages.length > 0 && (
                     <Button
-                      onClick={() => useAiChatStore.getState().clearMessages()}
+                      onClick={() => {
+                        useAiChatStore.getState().clearMessages()
+                        useAiChatStore.getState().setIsChatMode(false)
+                      }}
                       variant="outline"
                       size="sm"
                       className="text-gray-500 hover:text-gray-700"
@@ -262,7 +315,7 @@ export default function Dashboard() {
                     />
                   ))}
                 </div>
-
+                
                 {isChatMode ? (
                   <ChatInput disabled={chatLoading} />
                 ) : (
