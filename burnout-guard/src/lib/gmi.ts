@@ -1,6 +1,4 @@
 // src/lib/gmi.ts
-require('dotenv').config();
-
 export const BURNOUT_COACH_PROMPT = `You are Alex, a caring workplace wellness coach specializing in burnout prevention. Use this approach:
 
 1. FIRST analyze these key metrics:
