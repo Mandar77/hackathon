@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useCalendarStore } from '@/store/calendar';
 import { useAiChatStore } from '@/store/ai-chat';
 import { useHealthStore } from '@/store/health';
@@ -11,11 +12,14 @@ import HealthConnect from '@/components/HealthConnect';
 import HealthSync from '@/components/HealthSync';
 import ChatInput from '@/components/ChatInput';
 import ChatMessage from '@/components/ChatMessage';
+import { DashboardCard } from '@/components/DashboardCard';
+import { TakeABreak } from '@/components/TakeABreak';
 
 type TabType = 'overview' | 'assistant';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [isBreakModalOpen, setIsBreakModalOpen] = useState(false);
   const { data, loading: dataLoading, error: dataError, fetchData } = useCalendarStore();
   const { 
     messages, 
@@ -61,6 +65,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
       <Header />
       <HealthSync />
+      <TakeABreak isOpen={isBreakModalOpen} onClose={() => setIsBreakModalOpen(false)} />
       
       {/* Tab Navigation */}
       <div className="bg-white/80 backdrop-blur-md border-b border-purple-200 sticky top-0 z-10">
@@ -140,39 +145,27 @@ export default function Dashboard() {
             {data && (
               <>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="p-6 bg-gradient-to-br from-blue-400 to-blue-600 text-white transform hover:scale-105 transition-all duration-300">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-blue-100">Today's Meetings</h3>
-                      <span className="text-3xl">📅</span>
-                    </div>
-                    <p className="text-3xl font-bold mb-2">{data.meetings}</p>
-                    <p className="text-blue-100 text-sm">
-                      {data.meetings > 6 ? '😰 Quite busy today!' : '😊 Looking good!'}
-                    </p>
-                  </Card>
-                  
-                  <Card className="p-6 bg-gradient-to-br from-green-400 to-green-600 text-white transform hover:scale-105 transition-all duration-300">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-green-100">Break Time</h3>
-                      <span className="text-3xl">☕</span>
-                    </div>
-                    <p className="text-3xl font-bold mb-2">{data.breaks} min</p>
-                    <p className="text-green-100 text-sm">
-                      {data.breaks < 30 ? '⏰ Time for more breaks!' : '🎉 Great balance!'}
-                    </p>
-                  </Card>
-                  
-                  <Card className="p-6 bg-gradient-to-br from-orange-400 to-red-500 text-white transform hover:scale-105 transition-all duration-300">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-orange-100">Overtime Hours</h3>
-                      <span className="text-3xl">🌙</span>
-                    </div>
-                    <p className="text-3xl font-bold mb-2">{data.afterHoursWork}h</p>
-                    <p className="text-orange-100 text-sm">
-                      {data.afterHoursWork > 2 ? '😴 Time to rest!' : '✨ Healthy boundaries!'}
-                    </p>
-                  </Card>
-                  
+                  <DashboardCard
+                    title="Today's Meetings"
+                    icon="📅"
+                    value={data.meetings}
+                    description={data.meetings > 6 ? '😰 Quite busy today!' : '😊 Looking good!'}
+                    gradient="bg-gradient-to-br from-blue-400 to-blue-600"
+                  />
+                  <DashboardCard
+                    title="Break Time"
+                    icon="☕"
+                    value={`${data.breaks} min`}
+                    description={data.breaks < 30 ? '⏰ Time for more breaks!' : '🎉 Great balance!'}
+                    gradient="bg-gradient-to-br from-green-400 to-green-600"
+                  />
+                  <DashboardCard
+                    title="Overtime Hours"
+                    icon="🌙"
+                    value={`${data.afterHoursWork}h`}
+                    description={data.afterHoursWork > 2 ? '😴 Time to rest!' : '✨ Healthy boundaries!'}
+                    gradient="bg-gradient-to-br from-orange-400 to-red-500"
+                  />
                   <Card className="p-6 bg-gradient-to-br from-pink-400 to-red-500 text-white transform hover:scale-105 transition-all duration-300">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold text-pink-100">Health Metrics</h3>
@@ -205,18 +198,24 @@ export default function Dashboard() {
                           <span>Chat with Alex</span>
                         </span>
                       </Button>
-                      <Button variant="outline" className="border-2 border-indigo-300 text-indigo-600 hover:bg-indigo-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300">
+                      <Button
+                        onClick={() => setIsBreakModalOpen(true)}
+                        variant="outline"
+                        className="border-2 border-indigo-300 text-indigo-600 hover:bg-indigo-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300"
+                      >
                         <span className="flex items-center gap-3">
                           <span className="text-xl">🧘</span>
                           <span>Take a Break</span>
                         </span>
                       </Button>
-                      <Button variant="outline" className="border-2 border-green-300 text-green-600 hover:bg-green-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300">
-                        <span className="flex items-center gap-3">
-                          <span className="text-xl">📊</span>
-                          <span>View Insights</span>
-                        </span>
-                      </Button>
+                      <Link href="/insights">
+                        <Button variant="outline" className="border-2 border-green-300 text-green-600 hover:bg-green-50 font-medium py-6 rounded-2xl transform hover:scale-105 transition-all duration-300">
+                          <span className="flex items-center gap-3">
+                            <span className="text-xl">📊</span>
+                            <span>View Insights</span>
+                          </span>
+                        </Button>
+                      </Link>
                     </div>
                   </Card>
                 </div>
